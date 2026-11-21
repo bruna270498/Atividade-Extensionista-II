@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz de Sustentabilidade 🌍</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 700px;
+            width: 100%;
+            padding: 40px;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #2d3748;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #718096;
+            font-size: 1.1em;
+        }
+
+        .start-screen, .quiz-screen, .result-screen {
+            display: none;
+        }
+
+        .start-screen.active, .quiz-screen.active, .result-screen.active {
+            display: block;
+        }
+
+        .start-content {
+            text-align: center;
+        }
+
+        .planet-icon {
+            font-size: 80px;
+            margin: 20px 0;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            margin: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .progress-bar {
+            background: #e2e8f0;
+            height: 10px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
+            transition: width 0.5s ease;
+            border-radius: 10px;
+        }
+
+        .question-container {
+            margin-bottom: 30px;
+        }
+
+        .question-number {
+            color: #667eea;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            font-size: 1.4em;
+            color: #2d3748;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .option {
+            background: #f7fafc;
+            border: 3px solid #e2e8f0;
+            padding: 20px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1.1em;
+        }
+
+        .option:hover {
+            border-color: #667eea;
+            background: #edf2f7;
+            transform: translateX(5px);
+        }
+
+        .option.selected {
+            border-color: #667eea;
+            background: #e6f2ff;
+        }
+
+        .option.correct {
+            border-color: #48bb78;
+            background: #c6f6d5;
+            animation: pulse 0.5s;
+        }
+
+        .option.incorrect {
+            border-color: #f56565;
+            background: #fed7d7;
+            animation: shake 0.5s;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 15px;
+            display: none;
+        }
+
+        .feedback.show {
+            display: block;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .feedback.correct {
+            background: #c6f6d5;
+            border: 2px solid #48bb78;
+            color: #22543d;
+        }
+
+        .feedback.incorrect {
+            background: #fed7d7;
+            border: 2px solid #f56565;
+            color: #742a2a;
+        }
+
+        .feedback-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .result-content {
+            text-align: center;
+        }
+
+        .score-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 30px auto;
+            color: white;
+            font-size: 3em;
+            font-weight: bold;
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.4);
+        }
+
+        .score-label {
+            font-size: 0.3em;
+            margin-top: 10px;
+        }
+
+        .performance-message {
+            font-size: 1.5em;
+            color: #2d3748;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+
+        .tips-section {
+            background: #f7fafc;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 25px 0;
+            text-align: left;
+        }
+
+        .tips-section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .tips-section ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .tips-section li {
+            padding: 10px 0;
+            color: #4a5568;
+            line-height: 1.6;
+        }
+
+        .tips-section li:before {
+            content: "🌱 ";
+            margin-right: 10px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 25px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .question-text {
+                font-size: 1.2em;
+            }
+
+            .btn {
+                padding: 12px 30px;
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌍 Quiz de Sustentabilidade</h1>
+            <p>Teste seus conhecimentos e ajude o planeta!</p>
+        </div>
+
+        <div class="start-screen active">
+            <div class="start-content">
+                <div class="planet-icon">🌎</div>
+                <h2>Bem-vindo(a) ao Quiz de Sustentabilidade!</h2>
+                <p style="margin: 20px 0; color: #4a5568; font-size: 1.1em;">
+                    Você vai responder 10 perguntas sobre como podemos cuidar melhor do nosso planeta. 
+                    Cada pequena ação faz a diferença! 💚
+                </p>
+                <button class="btn" onclick="startQuiz()">Começar o Quiz</button>
+            </div>
+        </div>
+
+        <div class="quiz-screen">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar"></div>
+            </div>
+
+            <div class="question-container">
+                <div class="question-number" id="questionNumber"></div>
+                <div class="question-text" id="questionText"></div>
+                
+                <div class="options" id="optionsContainer"></div>
+
+                <div class="feedback" id="feedback">
+                    <div class="feedback-icon" id="feedbackIcon"></div>
+                    <div id="feedbackText"></div>
+                </div>
+            </div>
+
+            <button class="btn" id="nextBtn" onclick="nextQuestion()" style="display: none;">
+                Próxima Pergunta
+            </button>
+        </div>
+
+        <div class="result-screen">
+            <div class="result-content">
+                <h2>🎉 Quiz Concluído!</h2>
+                
+                <div class="score-circle">
+                    <div id="finalScore"></div>
+                    <div class="score-label">de 10</div>
+                </div>
+
+                <div class="performance-message" id="performanceMessage"></div>
+
+                <div class="tips-section">
+                    <h3>🌱 Dicas para um Mundo Mais Sustentável:</h3>
+                    <ul>
+                        <li>Reduza o uso de plástico descartável</li>
+                        <li>Economize água ao escovar os dentes</li>
+                        <li>Apague as luzes ao sair dos ambientes</li>
+                        <li>Separe o lixo para reciclagem</li>
+                        <li>Use sacolas reutilizáveis nas compras</li>
+                        <li>Compartilhe o que aprendeu com amigos e família!</li>
+                    </ul>
+                </div>
+
+                <button class="btn" onclick="restartQuiz()">Jogar Novamente</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const allQuestions = [
+            {
+                question: "Quanto tempo leva para uma garrafa plástica se decomor na natureza?",
+                options: ["1 ano", "10 anos", "100 anos", "Mais de 400 anos"],
+                correct: 3,
+                explanation: "Uma garrafa plástica pode levar mais de 400 anos para se decomor! Por isso é tão importante reciclar e usar garrafas reutilizáveis."
+            },
+            {
+                question: "Qual dessas ações economiza mais água?",
+                options: ["Tomar banhos mais curtos", "Fechar a torneira ao escovar os dentes", "Reutilizar a água da máquina de lavar", "Todas as opções anteriores"],
+                correct: 3,
+                explanation: "Todas essas ações são importantes! Pequenas mudanças de hábito podem economizar milhares de litros de água por ano."
+            },
+            {
+                question: "O que significa os 3 Rs da sustentabilidade?",
+                options: ["Reciclar, Reutilizar, Reduzir", "Reduzir, Reutilizar, Reciclar", "Renovar, Reciclar, Restaurar", "Reduzir, Renovar, Reciclar"],
+                correct: 1,
+                explanation: "Os 3 Rs são: Reduzir o consumo, Reutilizar o que puder e Reciclar o que não pode mais ser usado!"
+            },
+            {
+                question: "Qual tipo de lâmpada economiza mais energia?",
+                options: ["Lâmpada incandescente", "Lâmpada fluorescente", "Lâmpada de LED", "Todas são iguais"],
+                correct: 2,
+                explanation: "As lâmpadas de LED economizam até 80% de energia comparadas às incandescentes e duram muito mais tempo!"
+            },
+            {
+                question: "O que NÃO deve ser jogado no vaso sanitário?",
+                options: ["Papel higiênico", "Fio dental e cotonetes", "Apenas água e papel higiênico", "Todas as anteriores"],
+                correct: 1,
+                explanation: "Apenas papel higiênico deve ser jogado no vaso. Fio dental, cotonetes e outros itens podem entupir o encanamento e poluir a água!"
+            },
+            {
+                question: "Qual cor de lixeira é usada para reciclar papel?",
+                options: ["Verde", "Azul", "Vermelho", "Amarelo"],
+                correct: 1,
+                explanation: "Azul é para papel! Verde para vidro, Vermelho para plástico, Amarelo para metal e Marrom para orgânico."
+            },
+            {
+                question: "Qual dessas opções ajuda a reduzir o aquecimento global?",
+                options: ["Plantar árvores", "Usar transporte público ou bicicleta", "Economizar energia elétrica", "Todas as opções"],
+                correct: 3,
+                explanation: "Todas essas ações ajudam! As árvores absorvem CO2, menos carros significa menos poluição, e economizar energia reduz emissões."
+            },
+            {
+                question: "Qual alimento tem o menor impacto ambiental?",
+                options: ["Carne vermelha", "Frango", "Vegetais e legumes", "Peixes"],
+                correct: 2,
+                explanation: "Vegetais e legumes têm o menor impacto! A produção de carne usa muito mais água, terra e energia."
+            },
+            {
+                question: "O que é compostagem?",
+                options: ["Queimar o lixo", "Transformar restos orgânicos em adubo", "Jogar lixo no rio", "Enterrar o lixo"],
+                correct: 1,
+                explanation: "Compostagem transforma restos de comida e plantas em adubo natural, reduzindo o lixo e fertilizando o solo!"
+            },
+            {
+                question: "Quanto da superfície da Terra é coberta por água?",
+                options: ["50%", "60%", "70%", "80%"],
+                correct: 2,
+                explanation: "Cerca de 70% da Terra é coberta por água, mas apenas 3% é água doce! Por isso precisamos economizar."
+            },
+            {
+                question: "Quantas árvores são necessárias para produzir 1 tonelada de papel?",
+                options: ["5 árvores", "10 árvores", "15 a 20 árvores", "50 árvores"],
+                correct: 2,
+                explanation: "São necessárias cerca de 15 a 20 árvores para produzir 1 tonelada de papel. Reciclar papel salva muitas árvores!"
+            },
+            {
+                question: "Qual é a principal fonte de energia renovável no Brasil?",
+                options: ["Energia solar", "Energia eólica", "Energia hidrelétrica", "Energia nuclear"],
+                correct: 2,
+                explanation: "A energia hidrelétrica (das usinas de água) é a principal fonte renovável do Brasil, representando cerca de 60% da nossa eletricidade!"
+            },
+            {
+                question: "Quanto tempo leva para uma lata de alumínio se decomor?",
+                options: ["10 anos", "50 anos", "100 a 500 anos", "1000 anos"],
+                correct: 2,
+                explanation: "Uma latinha de alumínio pode levar de 100 a 500 anos para se decomor! Mas ela pode ser reciclada infinitas vezes!"
+            },
+            {
+                question: "O que são espécies em extinção?",
+                options: ["Animais que vivem na floresta", "Animais que correm risco de desaparecer", "Animais que não existem mais", "Animais perigosos"],
+                correct: 1,
+                explanation: "Espécies em extinção são animais ou plantas que correm risco de desaparecer do planeta. Precisamos protegê-los!"
+            },
+            {
+                question: "O que causa o efeito estufa?",
+                options: ["O frio intenso", "Gases que prendem o calor na atmosfera", "A chuva ácida", "O buraco na camada de ozônio"],
+                correct: 1,
+                explanation: "O efeito estufa acontece quando gases (como CO2) prendem o calor do sol na atmosfera, aquecendo o planeta demais."
+            },
+            {
+                question: "Qual dessas atitudes NÃO é sustentável?",
+                options: ["Comprar produtos com muitas embalagens", "Usar sacolas de pano", "Consertar objetos quebrados", "Doar roupas que não usa mais"],
+                correct: 0,
+                explanation: "Comprar produtos com muitas embalagens gera muito lixo desnecessário. Prefira produtos com menos embalagens!"
+            },
+            {
+                question: "O que é pegada ecológica?",
+                options: ["A marca do pé no chão", "O impacto das nossas ações no meio ambiente", "Caminhar na natureza", "Plantar árvores"],
+                correct: 1,
+                explanation: "Pegada ecológica é a medida do impacto que nossas ações causam no planeta. Quanto menor, melhor!"
+            },
+            {
+                question: "Por que é importante preservar as abelhas?",
+                options: ["Porque elas fazem mel", "Porque são bonitas", "Porque polinizam as plantas que nos alimentam", "Porque picam"],
+                correct: 2,
+                explanation: "As abelhas são responsáveis pela polinização de 70% das plantas que comemos. Sem elas, teríamos muito menos alimentos!"
+            },
+            {
+                question: "Qual é o oceano mais poluído por plástico?",
+                options: ["Oceano Atlântico", "Oceano Pacífico", "Oceano Índico", "Oceano Ártico"],
+                correct: 1,
+                explanation: "O Oceano Pacífico tem a maior 'ilha de lixo', com milhões de toneladas de plástico flutuando. Precisamos parar de poluir!"
+            },
+            {
+                question: "O que é agricultura orgânica?",
+                options: ["Plantar em casa", "Cultivar sem agrotóxicos e químicos", "Plantar apenas frutas", "Usar muitos fertilizantes"],
+                correct: 1,
+                explanation: "Agricultura orgânica é cultivar alimentos sem venenos (agrotóxicos), respeitando o meio ambiente e nossa saúde!"
+            },
+            {
+                question: "Quanto tempo leva para um chiclete se decomor?",
+                options: ["6 meses", "1 ano", "5 anos", "Até 5 anos ou mais"],
+                correct: 3,
+                explanation: "Um chiclete pode levar até 5 anos para se decomor! Nunca jogue chiclete no chão, sempre descarte no lixo."
+            },
+            {
+                question: "Qual é a melhor forma de economizar energia em casa?",
+                options: ["Deixar aparelhos em stand-by", "Desligar aparelhos da tomada quando não usar", "Usar só lâmpadas incandescentes", "Deixar luzes acesas"],
+                correct: 1,
+                explanation: "Desligar da tomada evita o consumo fantasma! Aparelhos em stand-by continuam gastando energia."
+            },
+            {
+                question: "O que é desmatamento?",
+                options: ["Plantar árvores", "Cortar florestas sem controle", "Cuidar das plantas", "Regar as árvores"],
+                correct: 1,
+                explanation: "Desmatamento é a destruição de florestas, que causa perda de biodiversidade e aumenta o aquecimento global."
+            },
+            {
+                question: "Qual animal é símbolo da preservação da Mata Atlântica?",
+                options: ["Onça-pintada", "Mico-leão-dourado", "Arara-azul", "Lobo-guará"],
+                correct: 1,
+                explanation: "O mico-leão-dourado está ameaçado de extinção e vive apenas na Mata Atlântica brasileira!"
+            },
+            {
+                question: "O que significa consumo consciente?",
+                options: ["Comprar tudo que você quer", "Pensar antes de comprar e escolher produtos sustentáveis", "Comprar sempre o mais barato", "Nunca comprar nada"],
+                correct: 1,
+                explanation: "Consumo consciente é pensar no impacto das nossas compras, escolhendo produtos sustentáveis e comprando apenas o necessário."
+            },
+            {
+                question: "Qual é a vantagem de usar transporte público?",
+                options: ["É mais caro", "Polui menos que carros individuais", "É mais lento", "Não tem vantagem"],
+                correct: 1,
+                explanation: "Um ônibus transporta muitas pessoas de uma vez, reduzindo a quantidade de carros e a poluição!"
+            },
+            {
+                question: "O que são energias renováveis?",
+                options: ["Energias que acabam rápido", "Energias que nunca acabam ou se renovam naturalmente", "Apenas energia elétrica", "Energia cara"],
+                correct: 1,
+                explanation: "Energias renováveis como solar, eólica e hidrelétrica vêm de fontes que não se esgotam e poluem menos!"
+            },
+            {
+                question: "Por que devemos evitar o desperdício de alimentos?",
+                options: ["Para economizar dinheiro apenas", "Porque produzir alimentos usa água, energia e recursos naturais", "Não há problema em desperdiçar", "Apenas para deixar espaço na geladeira"],
+                correct: 1,
+                explanation: "Produzir alimentos gasta muita água, energia e recursos. Desperdiçar é jogar tudo isso fora também!"
+            },
+            {
+                question: "O que é a camada de ozônio?",
+                options: ["Uma nuvem no céu", "Uma camada que protege a Terra dos raios solares nocivos", "Um tipo de poluição", "Parte do solo"],
+                correct: 1,
+                explanation: "A camada de ozônio fica na atmosfera e nos protege dos raios UV do sol, que podem causar câncer de pele."
+            },
+            {
+                question: "Qual destes hábitos ajuda a preservar água potável?",
+                options: ["Lavar a calçada com mangueira", "Tomar banhos de 30 minutos", "Juntar roupas para lavar de uma vez", "Deixar torneiras pingando"],
+                correct: 2,
+                explanation: "Lavar mais roupas de uma vez economiza água e energia! Cada lavagem usa muitos litros de água."
+            },
+            {
+                question: "O que são biomas?",
+                options: ["Tipos de animais", "Grandes áreas com clima, plantas e animais característicos", "Tipos de solo", "Apenas florestas"],
+                correct: 1,
+                explanation: "Biomas são grandes áreas como Amazônia, Cerrado, Caatinga, cada um com suas características únicas!"
+            },
+            {
+                question: "Por que não devemos soltar balões?",
+                options: ["Porque são caros", "Podem causar incêndios e matar animais", "Porque voam alto demais", "Não há problema"],
+                correct: 1,
+                explanation: "Balões podem cair em florestas causando incêndios. Animais podem confundi-los com comida e morrer!"
+            },
+            {
+                question: "O que é poluição sonora?",
+                options: ["Barulho da natureza", "Excesso de ruídos que prejudicam a saúde", "Som da chuva", "Canto dos pássaros"],
+                correct: 1,
+                explanation: "Poluição sonora é o excesso de barulho que pode causar estresse, problemas de audição e outros danos à saúde."
+            },
+            {
+                question: "Qual a importância das minhocas para o solo?",
+                options: ["Elas não são importantes", "Deixam o solo fofo e fértil", "Só servem de comida para pássaros", "Prejudicam as plantas"],
+                correct: 1,
+                explanation: "As minhocas fazem túneis no solo, permitindo entrada de ar e água, além de produzirem adubo natural!"
+            },
+            {
+                question: "O que é a Amazônia?",
+                options: ["Um rio", "A maior floresta tropical do mundo", "Uma cidade", "Um animal"],
+                correct: 1,
+                explanation: "A Amazônia é a maior floresta tropical do mundo e produz cerca de 20% do oxigênio do planeta!"
+            },
+            {
+                question: "Quanto tempo leva para um pneu se decomor?",
+                options: ["5 anos", "50 anos", "100 anos", "Mais de 600 anos"],
+                correct: 3,
+                explanation: "Um pneu pode levar mais de 600 anos para se decomor! Por isso é importante descartá-los corretamente."
+            },
+            {
+                question: "O que significa biodiversidade?",
+                options: ["Quantidade de pessoas", "Variedade de seres vivos em um ambiente", "Tipos de clima", "Quantidade de água"],
+                correct: 1,
+                explanation: "Biodiversidade é a variedade de plantas, animais e micro-organismos. Quanto maior, mais saudável é o ambiente!"
+            },
+            {
+                question: "Por que as florestas são chamadas de 'pulmões do mundo'?",
+                options: ["Porque têm formato de pulmão", "Porque produzem oxigênio e absorvem CO2", "Porque respiram", "Porque são grandes"],
+                correct: 1,
+                explanation: "As árvores absorvem gás carbônico (CO2) e liberam oxigênio (O2), limpando o ar que respiramos!"
+            },
+            {
+                question: "O que é reciclagem?",
+                options: ["Jogar lixo no chão", "Transformar materiais usados em novos produtos", "Queimar lixo", "Esconder o lixo"],
+                correct: 1,
+                explanation: "Reciclagem transforma materiais que seriam jogados fora em novos produtos, economizando recursos naturais!"
+            },
+            {
+                question: "Qual destes materiais pode ser reciclado?",
+                options: ["Papel higiênico usado", "Garrafa PET", "Guardanapo sujo", "Espelho quebrado"],
+                correct: 1,
+                explanation: "Garrafas PET são totalmente recicláveis! Papéis sujos de comida e espelhos não podem ser reciclados normalmente."
+            },
+            {
+                question: "O que acontece quando jogamos lixo nos rios?",
+                options: ["O lixo desaparece", "Polui a água e mata os animais aquáticos", "O rio fica mais bonito", "Nada acontece"],
+                correct: 1,
+                explanation: "O lixo polui a água, mata peixes e outros animais, e pode espalhar doenças para toda a comunidade!"
+            },
+            {
+                question: "O que são animais em extinção no Brasil?",
+                options: ["Cachorro e gato", "Arara-azul, onça-pintada e mico-leão-dourado", "Galinha e vaca", "Pombo e rato"],
+                correct: 1,
+                explanation: "Esses animais estão ameaçados por causa da destruição de seus habitats e da caça ilegal."
+            },
+            {
+                question: "Por que é importante ter áreas verdes nas cidades?",
+                options: ["Apenas para embelezar", "Para melhorar o ar, reduzir calor e dar qualidade de vida", "Para gastar dinheiro público", "Não são importantes"],
+                correct: 1,
+                explanation: "Parques e árvores melhoram o ar, diminuem o calor, absorvem água da chuva e são ótimos para nossa saúde mental!"
+            },
+            {
+                question: "O que é energia solar?",
+                options: ["Energia do sol transformada em eletricidade", "Energia do vento", "Energia da água", "Energia das plantas"],
+                correct: 0,
+                explanation: "Painéis solares captam a luz do sol e transformam em energia elétrica limpa e renovável!"
+            },
+            {
+                question: "Qual a melhor opção para carregar compras?",
+                options: ["Sacola plástica descartável", "Sacola de pano reutilizável", "Caixa de papelão sempre nova", "Não usar nada"],
+                correct: 1,
+                explanation: "Sacolas reutilizáveis de pano duram anos e evitam o uso de centenas de sacolas plásticas!"
+            },
+            {
+                question: "O que é aquecimento global?",
+                options: ["Quando liga o aquecedor", "Aumento da temperatura média da Terra", "Quando faz calor no verão", "Febre na Terra"],
+                correct: 1,
+                explanation: "O planeta está esquentando por causa da poluição, derretendo geleiras e mudando o clima do mundo todo!"
+            },
+            {
+                question: "Como podemos economizar papel na escola?",
+                options: ["Usando os dois lados da folha", "Usando apenas um lado", "Jogando fora folhas com erro", "Imprimindo tudo"],
+                correct: 0,
+                explanation: "Usar os dois lados do papel economiza árvores! Também podemos reutilizar folhas de rascunho."
+            },
+            {
+                question: "O que são agrotóxicos?",
+                options: ["Vitaminas para plantas", "Venenos usados na agricultura", "Adubo natural", "Água para plantas"],
+                correct: 1,
+                explanation: "Agrotóxicos são venenos usados para matar pragas, mas também poluem o ambiente e podem fazer mal à nossa saúde."
+            },
+            {
+                question: "Por que devemos apagar as luzes ao sair de um ambiente?",
+                options: ["Para economizar energia e dinheiro", "Porque a luz cansa", "Para escurecer", "Não é necessário"],
+                correct: 0,
+                explanation: "Luzes acesas sem uso desperdiçam energia elétrica. Economizar energia ajuda o planeta e reduz a conta de luz!"
+            },
+            {
+                question: "O que acontece com o lixo que não é reciclado?",
+                options: ["Desaparece sozinho", "Vai para aterros ou lixões, poluindo o ambiente", "Vira comida", "Volta para a loja"],
+                correct: 1,
+                explanation: "O lixo vai para aterros onde fica por centenas de anos, ocupando espaço e poluindo solo e água!"
+            }
+        ];
+
+        let questions = [];
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        function selectRandomQuestions() {
+            const shuffled = shuffleArray(allQuestions);
+            questions = shuffled.slice(0, 10);
+        }
+
+        function startQuiz() {
+            selectRandomQuestions();
+            currentQuestion = 0;
+            score = 0;
+            answered = false;
+            document.querySelector('.start-screen').classList.remove('active');
+            document.querySelector('.quiz-screen').classList.add('active');
+            showQuestion();
+        }
+
+        function showQuestion() {
+            answered = false;
+            const q = questions[currentQuestion];
+            
+            document.getElementById('questionNumber').textContent = `Pergunta ${currentQuestion + 1} de ${questions.length}`;
+            document.getElementById('questionText').textContent = q.question;
+            
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            
+            q.options.forEach((option, index) => {
+                const div = document.createElement('div');
+                div.className = 'option';
+                div.textContent = option;
+                div.onclick = () => selectOption(index);
+                optionsContainer.appendChild(div);
+            });
+            
+            document.getElementById('feedback').classList.remove('show');
+            document.getElementById('nextBtn').style.display = 'none';
+        }
+
+        function selectOption(index) {
+            if (answered) return;
+            
+            answered = true;
+            const q = questions[currentQuestion];
+            const options = document.querySelectorAll('.option');
+            const feedback = document.getElementById('feedback');
+            const feedbackIcon = document.getElementById('feedbackIcon');
+            const feedbackText = document.getElementById('feedbackText');
+            
+            options[index].classList.add('selected');
+            
+            if (index === q.correct) {
+                options[index].classList.add('correct');
+                feedback.className = 'feedback show correct';
+                feedbackIcon.textContent = '✅';
+                feedbackText.innerHTML = `<strong>Parabéns! Você acertou!</strong><br>${q.explanation}`;
+                score++;
+            } else {
+                options[index].classList.add('incorrect');
+                options[q.correct].classList.add('correct');
+                feedback.className = 'feedback show incorrect';
+                feedbackIcon.textContent = '❌';
+                feedbackText.innerHTML = `<strong>Ops! A resposta correta era:</strong> ${q.options[q.correct]}<br>${q.explanation}`;
+            }
+            
+            document.getElementById('nextBtn').style.display = 'block';
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            
+            if (currentQuestion < questions.length) {
+                showQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            document.querySelector('.quiz-screen').classList.remove('active');
+            document.querySelector('.result-screen').classList.add('active');
+            
+            document.getElementById('finalScore').textContent = score;
+            
+            const percentage = (score / questions.length) * 100;
+            let message = '';
+            
+            if (percentage === 100) {
+                message = '🌟 Perfeito! Você é um(a) verdadeiro(a) guardião(ã) do planeta!';
+            } else if (percentage >= 70) {
+                message = '🎉 Muito bem! Você conhece bastante sobre sustentabilidade!';
+            } else if (percentage >= 50) {
+                message = '👍 Bom trabalho! Continue aprendendo sobre o meio ambiente!';
+            } else {
+                message = '🌱 Continue estudando! Cada aprendizado conta!';
+            }
+            
+            document.getElementById('performanceMessage').textContent = message;
+        }
+
+        function restartQuiz() {
+            selectRandomQuestions();
+            currentQuestion = 0;
+            score = 0;
+            answered = false;
+            document.querySelector('.result-screen').classList.remove('active');
+            document.querySelector('.quiz-screen').classList.add('active');
+            showQuestion();
+        }
+    </script>
+</body>
+</html>
